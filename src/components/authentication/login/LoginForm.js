@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 //actions
-import { signin } from "../../../actions/users";
+import { signin } from "../../../actions/auths";
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
@@ -45,7 +45,8 @@ export default function LoginForm() {
     },
   });
 
-  const { errors, touched, values, handleSubmit, getFieldProps } = formik;
+  const { errors, touched, values, handleSubmit, getFieldProps, isSubmitting } =
+    formik;
 
   const handleShowPassword = () => {
     setShowPassword((show) => !show);
@@ -62,8 +63,6 @@ export default function LoginForm() {
             autoComplete="email"
             type="email"
             label="Email address"
-            // onChange={formik.handleChange}
-            // value={formik.values.email}
             {...getFieldProps("email")}
             error={Boolean(touched.email && errors.email)}
             helperText={touched.email && errors.email}
@@ -76,8 +75,6 @@ export default function LoginForm() {
             autoComplete="current-password"
             type={showPassword ? "text" : "password"}
             label="Password"
-            // onChange={formik.handleChange}
-            // value={formik.values.password}
             {...getFieldProps("password")}
             InputProps={{
               endAdornment: (
@@ -119,7 +116,7 @@ export default function LoginForm() {
           size="large"
           type="submit"
           variant="contained"
-          // loading={isSubmitting}
+          loading={isSubmitting}
         >
           Login
         </LoadingButton>

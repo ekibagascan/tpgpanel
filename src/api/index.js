@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "https://topupgamesku.herokuapp.com/" });
+const API = axios.create({ baseURL: "https://topupgamesku.herokuapp.com" });
 
 API.interceptors.request.use((req) => {
   if (localStorage.getItem("profile")) {
@@ -28,5 +28,7 @@ export const updateOrder = (id, updatedOrder) =>
   API.patch(`/api/orders/order/${id}`, updatedOrder);
 export const deleteOrder = (id) => API.delete(`/api/orders/order/${id}`);
 
-export const signIn = (formData) => API.post("/users/user/signin", formData);
-export const signUp = (formData) => API.post("/users/user/signup", formData);
+export const signIn = (formData) =>
+  API.post(`/api/users/user/signin`, formData);
+export const signUp = (formData) =>
+  API.post(`/api/users/user/signup`, formData);

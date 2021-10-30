@@ -35,7 +35,10 @@ export default function Router() {
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
         { path: "404", element: <NotFound /> },
-        { path: "/", element: <Navigate to="/dashboard" /> },
+        {
+          path: "/",
+          element: <Navigate to="/dashboard/app" />,
+        },
         { path: "*", element: <Navigate to="/404" /> },
       ],
     },
