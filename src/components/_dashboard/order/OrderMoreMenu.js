@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import editFill from "@iconify/icons-eva/edit-fill";
 import trash2Outline from "@iconify/icons-eva/trash-2-outline";
 import moreVerticalFill from "@iconify/icons-eva/more-vertical-fill";
-
+import { useDispatch } from "react-redux";
 // material
 import {
   Menu,
@@ -14,10 +14,13 @@ import {
 } from "@mui/material";
 //Components
 import EditDialog from "./EditDialog";
+//actions
+import { deleteOrder } from "../../../actions/orders";
 // ----------------------------------------------------------------------
 
 export default function UserMoreMenu({ id }) {
   const ref = useRef(null);
+  const dispatch = useDispatch();
   const [currentId, setCurrentId] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -29,6 +32,10 @@ export default function UserMoreMenu({ id }) {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleDelete = () => {
+    dispatch(deleteOrder(id));
   };
 
   return (
@@ -47,7 +54,7 @@ export default function UserMoreMenu({ id }) {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <MenuItem sx={{ color: "text.secondary" }}>
+        <MenuItem sx={{ color: "text.secondary" }} onClick={handleDelete}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>

@@ -233,9 +233,11 @@ export default function Order() {
                           </TableCell>
                           <TableCell align="left">{category}</TableCell>
                           <TableCell align="left">{playerId}</TableCell>
-                          <TableCell align="left">{zoneId}</TableCell>
-                          <TableCell align="left">{server}</TableCell>
-                          <TableCell align="left">{emailorPhone}</TableCell>
+                          <TableCell align="left">{zoneId || "none"}</TableCell>
+                          <TableCell align="left">{server || "none"}</TableCell>
+                          <TableCell align="left">
+                            {emailorPhone || "none"}
+                          </TableCell>
                           <TableCell align="left">{paymentMethod}</TableCell>
                           <TableCell align="left">{totalPrice}</TableCell>
                           <TableCell align="left">
