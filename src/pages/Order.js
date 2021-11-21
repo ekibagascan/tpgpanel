@@ -1,8 +1,7 @@
 import { filter } from "lodash";
 import { sentenceCase } from "change-case";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-// import { Link as RouterLink } from "react-router-dom";
 // material
 import {
   Card,
@@ -16,7 +15,9 @@ import {
   Typography,
   TableContainer,
   TablePagination,
+  CircularProgress,
 } from "@mui/material";
+import moment from "moment";
 // components
 import Page from "../components/Page";
 import Label from "../components/Label";
@@ -28,11 +29,12 @@ import {
   OrderMoreMenu,
 } from "../components/_dashboard/order";
 //
-import { getOrders } from "../actions/orders";
+import { getAllTx } from "../actions/transactions";
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
+  { id: "created", label: "Created", alignRight: false },
   { id: "productName", label: "Name", alignRight: false },
   { id: "category", label: "Category", alignRight: false },
   { id: "playerId", label: "Player Id", alignRight: false },
@@ -73,25 +75,41 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(
       array,
-      (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (_order) => _order.name.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
+function useIsMounted() {
+  const isMounted = useRef(false);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => (isMounted.current = false);
+  }, []);
+  return isMounted;
+}
+
 export default function Order() {
   const dispatch = useDispatch();
-  const { orders } = useSelector((state) => state.orders);
+  const { txs, isTxLoading } = useSelector((state) => state.txs);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
+  const [state, setState] = useState("loading (4 sec)...");
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState("name");
+  const isMounted = useIsMounted();
   const [filterName, setFilterName] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   useEffect(() => {
-    dispatch(getOrders());
-  }, [dispatch]);
+    dispatch(getAllTx()).then((data) => {
+      if (isMounted.current) {
+        setState(data);
+      }
+      return { state };
+    });
+  }, [dispatch, isMounted, state]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -101,7 +119,7 @@ export default function Order() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = orders.map((n) => n.name);
+      const newSelecteds = txs.map((n) => n.metadata.productName);
       setSelected(newSelecteds);
       return;
     }
@@ -140,10 +158,10 @@ export default function Order() {
   };
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - orders.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - txs.length) : 0;
 
   const filteredOrders = applySortFilter(
-    orders,
+    txs,
     getComparator(order, orderBy),
     filterName
   );
@@ -178,7 +196,7 @@ export default function Order() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={orders.length}
+                  rowCount={txs.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -188,7 +206,6 @@ export default function Order() {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
                       const {
-                        _id,
                         productName,
                         category,
                         playerId,
@@ -197,16 +214,18 @@ export default function Order() {
                         emailorPhone,
                         paymentMethod,
                         totalPrice,
-                        isPaid,
+                        status,
+                        created,
                         isDelivered,
-                      } = row;
+                      } = row.metadata;
+
                       const isItemSelected =
                         selected.indexOf(productName) !== -1;
 
                       return (
                         <TableRow
                           hover
-                          key={_id}
+                          key={row._id}
                           tabIndex={-1}
                           role="checkbox"
                           selected={isItemSelected}
@@ -219,6 +238,9 @@ export default function Order() {
                                 handleClick(event, productName)
                               }
                             />
+                          </TableCell>
+                          <TableCell align="left">
+                            {moment(created).startOf("minutes").fromNow()}
                           </TableCell>
                           <TableCell component="th" scope="row" padding="none">
                             <Stack
@@ -240,29 +262,64 @@ export default function Order() {
                           </TableCell>
                           <TableCell align="left">{paymentMethod}</TableCell>
                           <TableCell align="left">{totalPrice}</TableCell>
-                          <TableCell align="left">
-                            <Label
-                              variant="ghost"
-                              color={
-                                isDelivered && isPaid
-                                  ? "success"
-                                  : isPaid
-                                  ? "primary"
-                                  : "default"
-                              }
-                            >
-                              {sentenceCase(
-                                isDelivered && isPaid
-                                  ? "Delivered"
-                                  : isPaid
-                                  ? "Paid"
-                                  : "Unpaid"
-                              )}
-                            </Label>
-                          </TableCell>
+
+                          {paymentMethod !== "Qris" ? (
+                            <TableCell align="left">
+                              <Label
+                                variant="ghost"
+                                color={
+                                  isDelivered && status === "SUCCEEDED"
+                                    ? "success"
+                                    : status === "SUCCEEDED"
+                                    ? "primary"
+                                    : "default"
+                                }
+                              >
+                                {isTxLoading ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  sentenceCase(
+                                    isDelivered && status === "SUCCEEDED"
+                                      ? "Delivered"
+                                      : status === "SUCCEEDED"
+                                      ? "Paid"
+                                      : "Unpaid"
+                                  )
+                                )}
+                              </Label>
+                            </TableCell>
+                          ) : (
+                            <TableCell align="left">
+                              <Label
+                                variant="ghost"
+                                color={
+                                  isDelivered && status === "COMPLETED"
+                                    ? "success"
+                                    : status === "COMPLETED"
+                                    ? "primary"
+                                    : "default"
+                                }
+                              >
+                                {isTxLoading ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  sentenceCase(
+                                    isDelivered && status === "COMPLETED"
+                                      ? "Delivered"
+                                      : status === "COMPLETED"
+                                      ? "Paid"
+                                      : "Unpaid"
+                                  )
+                                )}
+                              </Label>
+                            </TableCell>
+                          )}
 
                           <TableCell align="right">
-                            <OrderMoreMenu id={_id} />
+                            <OrderMoreMenu
+                              paymentMethod={paymentMethod}
+                              id={row._id}
+                            />
                           </TableCell>
                         </TableRow>
                       );
@@ -287,9 +344,9 @@ export default function Order() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[25, 50, 100]}
             component="div"
-            count={orders.length}
+            count={txs.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

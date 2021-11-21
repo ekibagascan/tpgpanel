@@ -15,7 +15,7 @@ import {
 //Components
 import EditDialog from "./EditDialog";
 //actions
-import { deleteOrder } from "../../../actions/orders";
+import { deleteTx } from "../../../actions/transactions";
 // ----------------------------------------------------------------------
 
 export default function UserMoreMenu({ id }) {
@@ -35,7 +35,7 @@ export default function UserMoreMenu({ id }) {
   };
 
   const handleDelete = () => {
-    dispatch(deleteOrder(id));
+    dispatch(deleteTx(id));
   };
 
   return (
@@ -54,22 +54,21 @@ export default function UserMoreMenu({ id }) {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <MenuItem sx={{ color: "text.secondary" }} onClick={handleDelete}>
-          <ListItemIcon>
-            <Icon icon={trash2Outline} width={24} height={24} />
-          </ListItemIcon>
-          <ListItemText
-            primary="Delete"
-            primaryTypographyProps={{ variant: "body2" }}
-          />
-        </MenuItem>
-
         <MenuItem onClick={handleClickOpen} sx={{ color: "text.secondary" }}>
           <ListItemIcon>
             <Icon icon={editFill} width={24} height={24} />
           </ListItemIcon>
           <ListItemText
             primary="Edit"
+            primaryTypographyProps={{ variant: "body2" }}
+          />
+        </MenuItem>
+        <MenuItem sx={{ color: "text.secondary" }} onClick={handleDelete}>
+          <ListItemIcon>
+            <Icon icon={trash2Outline} width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText
+            primary="Delete"
             primaryTypographyProps={{ variant: "body2" }}
           />
         </MenuItem>

@@ -8,6 +8,11 @@ export const FETCH_ALL_PRODUCTS = "FETCH_ALL_PRODUCTS";
 
 export const FETCH_ALL_SLIDES = "FETCH_ALL_SLIDES";
 
+export const FETCH_TX = "FETCH_TX";
+export const FETCH_ALL_TX = "FETCH_ALL_TX";
+export const UPDATE_TX = "UPDATE_TX";
+export const DELETE_TX = "DELETE_TX";
+
 export const FETCH_ALL_CATEGORIES = "FETCH_ALL_CATEGORIES";
 export const FETCH_CATEGORY = "FETCH_CATEGORY";
 

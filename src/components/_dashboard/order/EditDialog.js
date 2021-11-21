@@ -11,16 +11,17 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 //actions
-import { updateOrder } from "../../../actions/orders";
+import { updateTx } from "../../../actions/transactions";
 
 export default function EditDialog({ open, handleClose, currentId }) {
   const dispatch = useDispatch();
-  const order = useSelector((state) =>
+  const tx = useSelector((state) =>
     currentId
-      ? state.orders.orders.find((message) => message._id === currentId)
+      ? state.txs.txs.find((message) => message._id === currentId)
       : null
   );
-  const [orderData, setOrderData] = useState({
+  const [txData, setTxData] = useState({
+    id: "",
     productName: "",
     category: "",
     playerId: "",
@@ -29,12 +30,14 @@ export default function EditDialog({ open, handleClose, currentId }) {
     emailorPhone: "",
     totalPrice: "",
     paymentMethod: "",
-    isPaid: false,
+    status: "",
     isDelivered: false,
+    created: "",
   });
 
   const clear = () => {
-    setOrderData({
+    setTxData({
+      id: "",
       productName: "",
       category: "",
       playerId: "",
@@ -43,35 +46,31 @@ export default function EditDialog({ open, handleClose, currentId }) {
       emailorPhone: "",
       totalPrice: "",
       paymentMethod: "",
-      isPaid: false,
+      status: "",
       isDelivered: false,
+      created: "",
     });
   };
 
   useEffect(() => {
-    if (order) setOrderData(order);
-  }, [order]);
+    if (tx) setTxData(tx.metadata);
+  }, [tx]);
 
   const handleAll = (event) => {
-    setOrderData({
-      ...orderData,
-      isPaid: event.target.checked,
+    setTxData({
+      ...txData,
       isDelivered: event.target.checked,
     });
   };
 
-  const handleIsPaid = (event) => {
-    setOrderData({ ...orderData, isPaid: event.target.checked });
-  };
-
   const handleIsDelivered = (event) => {
-    setOrderData({ ...orderData, isDelivered: event.target.checked });
+    setTxData({ ...txData, isDelivered: event.target.checked });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (currentId) {
-      dispatch(updateOrder(currentId, { ...orderData }));
+      dispatch(updateTx(currentId, { ...txData }));
     }
     clear();
   };
@@ -79,18 +78,9 @@ export default function EditDialog({ open, handleClose, currentId }) {
   const children = (
     <Box sx={{ display: "flex", flexDirection: "column", ml: 3 }}>
       <FormControlLabel
-        label="Is Paid"
-        control={
-          <Checkbox checked={orderData.isPaid} onChange={handleIsPaid} />
-        }
-      />
-      <FormControlLabel
         label="Is Delivered"
         control={
-          <Checkbox
-            checked={orderData.isDelivered}
-            onChange={handleIsDelivered}
-          />
+          <Checkbox checked={txData.isDelivered} onChange={handleIsDelivered} />
         }
       />
     </Box>
@@ -108,11 +98,7 @@ export default function EditDialog({ open, handleClose, currentId }) {
           <FormControlLabel
             label="All"
             control={
-              <Checkbox
-                checked={orderData.isPaid && orderData.isDelivered}
-                indeterminate={orderData.isPaid !== orderData.isDelivered}
-                onChange={handleAll}
-              />
+              <Checkbox checked={txData.isDelivered} onChange={handleAll} />
             }
           />
           {children}
@@ -120,7 +106,6 @@ export default function EditDialog({ open, handleClose, currentId }) {
             variant="contained"
             type="submit"
             size="large"
-            fullwidth
             onClick={handleClose}
           >
             Update Order
