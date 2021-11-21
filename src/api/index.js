@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "https://93b6-182-1-64-227.ngrok.io" });
+const API = axios.create({ baseURL: "https://topupgamesku.herokuapp.com" });
 
 API.interceptors.request.use((req) => {
   if (localStorage.getItem("profile")) {
