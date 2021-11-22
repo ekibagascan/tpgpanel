@@ -41,6 +41,7 @@ const TABLE_HEAD = [
   { id: "zoneId", label: "Zone Id", alignRight: false },
   { id: "server", label: "Server", alignRight: false },
   { id: "emailorPhone", label: "Email/Hp", alignRight: false },
+  { id: "reference_id", label: "RefID", alignRight: false },
   { id: "paymentMethod", label: "Payment", alignRight: false },
   { id: "totalPrice", label: "Price", alignRight: false },
   { id: "status", label: "Status", alignRight: false },
@@ -259,6 +260,10 @@ export default function Order() {
                           <TableCell align="left">{server || "none"}</TableCell>
                           <TableCell align="left">
                             {emailorPhone || "none"}
+                          </TableCell>
+                          <TableCell align="left">
+                            {row.ewallet.data.reference_id ||
+                              row.qris.qr_code.external_id}
                           </TableCell>
                           <TableCell align="left">{paymentMethod}</TableCell>
                           <TableCell align="left">{totalPrice}</TableCell>
